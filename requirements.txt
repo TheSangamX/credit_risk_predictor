@@ -1,6 +1,5 @@
-# Core dependencies
-numpy
-pandas
-scikit-learn
-matplotlib
-jupyter
+numpy==2.5.1
+pandas==2.2.3
+scikit-learn==1.9.0
+joblib==1.5.3
+streamlit==1.61.1
