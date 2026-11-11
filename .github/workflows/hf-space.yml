@@ -49,7 +49,7 @@ jobs:
         if: env.SPACE_URL != ''
         run: |
           for i in 1 2 3 4 5 6; do
-            if curl -sSf "$SPACE_URL" | grep -q "Credit Risk Predictor" && curl -sSf "$SPACE_URL/model.json" | head -c 50 | grep -q threshold; then
+            if curl -sSfL "$SPACE_URL" | grep -q "Credit Risk Predictor" && curl -sSfL "$SPACE_URL/model.json" | head -c 50 | grep -q threshold; then
               echo "Live at $SPACE_URL"; exit 0
             fi
             sleep 20
