@@ -3,10 +3,8 @@ title: Credit Risk Predictor
 emoji: 📉
 colorFrom: indigo
 colorTo: gray
-sdk: gradio
-sdk_version: 6.31.0
-python_version: "3.12"
-app_file: app.py
+sdk: static
+app_file: index.html
 pinned: false
 short_description: Loan default risk with a breakdown of every prediction
 tags:
@@ -24,7 +22,7 @@ By [Sangam Gupta](https://www.sangamgupta.in) · [Case study](https://www.sangam
 
 ## Model card
 
-- **Model**: scikit-learn `HistGradientBoostingClassifier` (200 iterations, learning rate 0.05, L2 1.0) inside a pipeline with its preprocessing, saved with `joblib`.
+- **Model**: scikit-learn `HistGradientBoostingClassifier` (200 iterations, learning rate 0.05, L2 1.0) inside a pipeline with its preprocessing, saved with `joblib`. For this Space its trees and preprocessing are exported to `model.json` and evaluated in JavaScript in the browser (`credit-risk.js`); predictions match scikit-learn to within 1e-6, and nothing you enter leaves the page.
 - **Data**: Home Credit Default Risk application data.
 - **Decision threshold**: 15% instead of the default 50%, because missing a defaulter costs more than a second look at a safe applicant.
 
@@ -38,7 +36,7 @@ By [Sangam Gupta](https://www.sangamgupta.in) · [Case study](https://www.sangam
 
 ## How each prediction is explained
 
-The app walks every tree in the model for the applicant you enter and credits each split to the feature it used (Saabas path attribution, with each node's value taken as the count-weighted average of the leaves below it). The baseline plus the contributions add up exactly to the model's raw output, and the app prints the difference from `predict_proba` as a check.
+The page walks every tree in the model for the applicant you enter and credits each split to the feature it used (Saabas path attribution, with each node's value taken as the count-weighted average of the leaves below it). The starting point plus the contributions add up exactly to the model's raw output.
 
 ## Limits
 
