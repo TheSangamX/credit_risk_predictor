@@ -54,4 +54,6 @@ jobs:
             fi
             sleep 20
           done
+          curl -sS -o /dev/null -w "page: %{http_code} %{redirect_url}\n" "$SPACE_URL" || true
+          curl -sS "$SPACE_URL" | head -c 300 || true
           echo "::error::The Space didn't serve the page at $SPACE_URL"; exit 1
