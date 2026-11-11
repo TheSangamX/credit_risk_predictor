@@ -1,0 +1,45 @@
+# Deploys hf-space/ plus the saved model to a Hugging Face Space (creates the Space the first time).
+# Needs one repository secret: HF_TOKEN, a Hugging Face access token with write permission.
+name: Deploy to Hugging Face
+
+on:
+  push:
+    branches: [main]
+    paths: ["hf-space/**", "models/**", ".github/workflows/hf-space.yml"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stage the Space
+        run: |
+          mkdir -p space/models
+          cp hf-space/* space/
+          cp models/credit_risk_model.joblib models/app_defaults.joblib space/models/
+          ls -la space space/models
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Upload
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          SPACE_NAME: credit-risk-predictor
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::warning::Add HF_TOKEN as a repository secret to deploy the Space."
+            exit 0
+          fi
+          pip install -q huggingface_hub
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          user = api.whoami()["name"]
+          repo = f"{user}/{os.environ['SPACE_NAME']}"
+          api.create_repo(repo, repo_type="space", space_sdk="gradio", exist_ok=True)
+          api.upload_folder(folder_path="space", repo_id=repo, repo_type="space", commit_message="Deploy from GitHub")
+          print(f"Deployed: https://huggingface.co/spaces/{repo}")
+          PY
