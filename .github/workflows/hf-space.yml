@@ -42,4 +42,16 @@ jobs:
           api.create_repo(repo, repo_type="space", space_sdk="static", exist_ok=True)
           api.upload_folder(folder_path="space", repo_id=repo, repo_type="space", commit_message="Deploy from GitHub")
           print(f"Deployed: https://huggingface.co/spaces/{repo}")
+          host = repo.lower().replace("/", "-").replace("_", "-")
+          open(os.environ["GITHUB_ENV"], "a").write(f"SPACE_URL=https://{host}.static.hf.space\n")
           PY
+      - name: Check the live page
+        if: env.SPACE_URL != ''
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -sSf "$SPACE_URL" | grep -q "Credit Risk Predictor" && curl -sSf "$SPACE_URL/model.json" | head -c 50 | grep -q threshold; then
+              echo "Live at $SPACE_URL"; exit 0
+            fi
+            sleep 20
+          done
+          echo "::error::The Space didn't serve the page at $SPACE_URL"; exit 1
